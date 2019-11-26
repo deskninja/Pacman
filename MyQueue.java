@@ -1,15 +1,38 @@
 package assignment10;
 
-public class MyQueue<T> {
+import java.util.Comparator;
 
-    //TODO: add heap
+public class MyQueue<T> extends Heap<T>{
+
+    public MyQueue() {
+        super();
+    }
+
+    public MyQueue(Comparator cmp){
+        super(cmp);
+    }
 
     public T dequeue(){
-        //TODO: return top value of heap
+        return super.removeFirst();
+    }
+
+    public void enqueue(T x){
+        super.add(x);
+    }
+
+    @Override
+    public void add(T x) {
+        return;
+    }
+
+    @Override
+    public T removeFirst() {
         return null;
     }
 
-    public void enqueue(){
-        //TODO: add to heap
+    @Override
+    public String toString() {
+        //TODO: edit this as needed
+        return super.toString();
     }
 }
