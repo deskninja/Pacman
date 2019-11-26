@@ -17,36 +17,45 @@ public class Graph {
          * check to see if Node has been visited before
          */
         Boolean visited;
+
+        /**
+         * states if this is an X in the maze
+         */
+        Boolean x;
         /**
          * counts how many times this node was looked at. created for analysis document
          */
         int lookedAt;
+        /**
+         * size of the path so far
+         */
         int dist = INFINITY;
-        int prev = UNDEFINED;
-        int indexInMatrix;
+        /**
+         * previous Node in the path
+         */
+        int[] prev;
+        int[] indexInMatrix;
 
-        public Node(int indexInMatrix) {
-            this.indexInMatrix = indexInMatrix;
+        public Node(int x, int y) {
+            this.indexInMatrix = new int[2];
+            this.indexInMatrix[0] = x;
+            this.indexInMatrix[1] = y;
         }
     }
 
-    /*
-     * Private members
-     */
+
     private int[][] matrix;
-    private Map<String, Integer> nodeMap;
-    private Map<Integer, String> intNodeMap;
-    private Map<Integer, Node> shorestPathMap;
-    private String sspSource;
+    private Map<int[], Integer> nodeMap; //int[] is the position in the maze, Integer is the cost of the path
+    private Map<Integer, int[]> intNodeMap;
+    private Map<int[], Node> shorestPathMap;
+    private int[] sspSource;
     private int nodeId;
     private int size;
+    private int x;
+    private int y;
 
     private final int INFINITY = Integer.MAX_VALUE;
     private static final int UNDEFINED = Integer.MIN_VALUE;
-
-    public Graph() {
-
-    }
 
     /**
      * Resets the matrix to the given number of nodes and resets the other fields
@@ -56,21 +65,20 @@ public class Graph {
      * @modifies this
      */
     private void resize(int numNodes) {
-        matrix = new int[numNodes][numNodes];
+        matrix = new int[numNodes][4]; //one for each possible edge
         for (int i = 0; i < numNodes; i++)
-            for (int j = 0; j < numNodes; j++)
+            for (int j = 0; j < 4; j++)
                 matrix[i][j] = INFINITY;
         nodeMap = new MapOnHashTable<>();
         intNodeMap = new MapOnHashTable<>();
         shorestPathMap = new MapOnHashTable<>();
-        sspSource = "";
+        sspSource = null;
         nodeId = 0;
     }
 
     private List<String> intListToStringList(List<Integer> idxResult) {
+        //TODO: make this return the formatted output file
         List<String> result = new ListOnJavaArrayList<>();
-        for (Integer idx : idxResult)
-            result.add(intNodeMap.value(idx));
         return result;
     }
 
@@ -94,38 +102,52 @@ public class Graph {
     public Graph(String file) {
         // precondition not checked
         SimpleReader in = new SimpleReader1L(file);
-        int numNodes = Integer.parseInt(in.nextLine());
-        resize(numNodes);
+        String line = in.nextLine();
+        this.x = Integer.parseInt(line.split(" ")[0]);
+        this.y = Integer.parseInt(line.split(" ")[1]);
+        int[] position = newPositon();
+        resize(x * y);
         while (!in.atEOS()) {
-            String line = in.nextLine();
-            String[] edgeParts = line.split(",");
-            String src = edgeParts[0];
-            if (!nodeMap.hasKey(src))
-                addNode(src);
-            String dst = edgeParts[1];
-            if (!nodeMap.hasKey(dst))
-                addNode(dst);
-            int cost = Integer.parseInt(edgeParts[2]);
-            addEdge(src, dst, cost);
+            line = in.nextLine();
+            char[] edgeParts = line.toCharArray();
+            for (char c : edgeParts) {
+                if (c != 'X') {
+                    addNode(position);
+                }
+                nextPosition(x, position);
+            }
         }
         in.close();
+    }
+
+    private void nextPosition(int x, int[] position){
+        if (position[0] + 1 == x) {
+            position[1]++;
+            position[0] = 0;
+        }
+    }
+
+    private int[] newPositon() {
+        int[] x = new int[2];
+        x[0] = 0;
+        x[1] = 0;
     }
 
     /**
      * Adds a new node with the given label to this graph.
      *
-     * @param label label for the new node
+     * @param position label for the new node and the position in the maze
      *
      * @requires label is not a node of this graph
      * @modifies this
      */
-    public void addNode(int position) {
+    public void addNode(int[] position) {
         assert !nodeMap
-                .hasKey(label) : "Violation of: label is not a node of this graph";
+                .hasKey(position) : "Violation of: label is not a node of this graph";
 
-        nodeMap.add(label, nodeId);
-        intNodeMap.add(nodeId, label);
-        sspSource = "";// adding a node invalidates previous ssp run
+        nodeMap.add(position, nodeId);
+        intNodeMap.add(nodeId, position);
+        sspSource = null;// adding a node invalidates previous ssp run
         nodeId++;
     }
 
@@ -134,13 +156,11 @@ public class Graph {
      *
      * @param src  source node label
      * @param dst  destination node label
-     * @param cost edge weight
      * @requires [edge cost is non-negative] and [src and dst are nodes in this
      *           graph]
      * @modifies this
      */
-    public void addEdge(String src, String dst, int cost) {
-        assert cost >= 0 : "Violation of: edge cost is non negative";
+    public void addEdge(int[] src, int[] dst) {
         assert nodeMap
                 .hasKey(src) : "Violation of: src is a node already in the graph";
         assert nodeMap
@@ -148,8 +168,8 @@ public class Graph {
 
         int srcIndex = nodeMap.value(src);
         int dstIndex = nodeMap.value(dst);
-        matrix[srcIndex][dstIndex] = cost;
-        sspSource = "";// adding an edge invalidates previous ssp run
+        matrix[srcIndex][dstIndex] = 1;
+        sspSource = null; // adding an edge invalidates previous ssp run
     }
 
     public int getSize() {
@@ -163,7 +183,7 @@ public class Graph {
      * @requires [src is a node in this graph]
      * @modifies this
      */
-    public void dijkstra(String src) {
+    public void dijkstra(int[] src) {
 
         int srcIdx = nodeMap.value(src);
 
@@ -174,28 +194,30 @@ public class Graph {
         shorestPathMap.clear();
 
         int numVerts = matrix.length;
+        int[] position = newPositon();
         for (int currNodeIdx = 0; currNodeIdx < numVerts; currNodeIdx++) {
-            Node v = new Node(currNodeIdx);
-            shorestPathMap.add(currNodeIdx, v);
+            Node v = new Node(position[0], position[1]);
+            shorestPathMap.add(position, v);
+            nextPosition(x, position);
             if (currNodeIdx == srcIdx)
                 v.dist = 0;
             pq.enqueue(v);
         }
-
+        position = newPositon();
         while (pq.size() > 0) {
             Node u = pq.dequeue();
-            System.out.println("node: " + u.indexInMatrix + " is " + intNodeMap.value(u.indexInMatrix));
             for (int v = 0; v < numVerts; v++) {
-                if (matrix[u.indexInMatrix][v] < INFINITY && u.dist < INFINITY) {
+                if (matrix[position[0] + (x * position[1])][v] < INFINITY && u.dist < INFINITY) {
                     // if an edge exists and the node itself is reachable from the src
-                    int alt = u.dist + matrix[u.indexInMatrix][v];
-                    Node nodeV = shorestPathMap.value(v);
+                    int alt = u.dist + matrix[position[0] + (x * position[1])][v];
+                    Node nodeV = shorestPathMap.value(position);
                     if (alt < nodeV.dist) {
                         nodeV.dist = alt;
                         nodeV.prev = u.indexInMatrix;
                     }
                 }
             }
+            nextPosition(x, position);
         }
         sspSource = src;
     }
@@ -212,17 +234,20 @@ public class Graph {
      * @requires [src is a node in this graph] and [dst is a node in this graph]
      * @modifies this
      */
-    public int shortestPathCost(String src, String dst) {
-        assert nodeMap
-                .hasKey(src) : "Violation of: src is a node in this graph";
-        assert nodeMap
-                .hasKey(dst) : "Violation of: dst is a node in this graph";
-
+    public int shortestPathCost(int[] src, int[] dst) {
         if (!src.equals(sspSource))
             dijkstra(src);
         int dstIdx = nodeMap.value(dst);
-        Node sspNode = shorestPathMap.value(dstIdx);
+        Node sspNode = shorestPathMap.value(toIntArr(dstIdx));
         return sspNode.dist;
+    }
+
+    private int[] toIntArr(int x){
+        int[] arr = newPositon();
+        if(x > this.x - 1){
+            arr[1] = x/(this.x - 1);
+        }
+        arr[0] = x % (this.x - 1);
     }
 
     /**
@@ -235,33 +260,33 @@ public class Graph {
      * @requires [src is a node in this graph] and [dst is a node in this graph]
      * @modifies this
      */
-    public String shortestPath(String src, String dst) {
+    public String shortestPath(int[] src, int[] dst) {
         assert nodeMap
                 .hasKey(src) : "Violation of: src is a node in this graph";
         assert nodeMap
                 .hasKey(dst) : "Violation of: dst is a node in this graph";
 
-        List<Integer> path = new ListOnJavaArrayList<>();
+        List<int[]> path = new ListOnJavaArrayList<>();
         if (!src.equals(sspSource))
             dijkstra(src);
         int dstIdx = nodeMap.value(dst);
-        Node sspNode = shorestPathMap.value(dstIdx);
+        Node sspNode = shorestPathMap.value(toIntArr(dstIdx));
 
         if (sspNode.dist < INFINITY) {
             String result = "Shortest path cost = " + sspNode.dist + ", Path = ";
-            while (sspNode.prev != UNDEFINED) {
+            while (sspNode.prev != null) {
                 //add plus one to the size for every node in the path
                 this.size++;
                 path.add(0, sspNode.indexInMatrix);
                 sspNode = shorestPathMap.value(sspNode.prev);
             }
-            path.add(0, nodeMap.value(src));
+            path.add(0, nodeMap.value(toIntArr(src)));
             return result + intListToStringList(path).toString();
         } else {
             return dst + " is not reachable from " + src;
         }
     }
-    
+
     public String shortestPath(){
         return shortestPath("S", "G");
     }
