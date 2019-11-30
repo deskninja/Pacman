@@ -1,11 +1,7 @@
 package assignment10;
 
-import components.list.List;
-import components.list.ListOnJavaArrayList;
 import components.map.Map;
 import components.map.MapOnHashTable;
-import components.queue.PriorityQueue;
-import components.queue.Queue;
 import components.simplereader.SimpleReader;
 import components.simplereader.SimpleReader1L;
 
@@ -25,11 +21,12 @@ public class Graph {
             this.position = position;
         }
     }
+
     private static final int INFINITY = Integer.MAX_VALUE;
     private int[][] matrix;
     private Map<String, Integer> nodeMap; //position, nodeId counting up
     private Map<Integer, String> intNodeMap; //nodeId counting up, position
-    private Map<Integer, Node> shortestPathMap; //indexInMatrix, Node where prev leads back to start
+    private Map<String, Node> shortestPathMap; //indexInMatrix, Node where prev leads back to start
     int cols; //x value for size
     int rows; //y value for size
     String start; //position of start Node
@@ -72,6 +69,15 @@ public class Graph {
         return position;
     }
 
+    private int[] newPosition(String posit) {
+        int[] position = new int[2];
+        int temp = Integer.parseInt(posit.split(" ")[0]);
+        position[0] = temp;
+        temp = Integer.parseInt(posit.split(" ")[1]);
+        position[1] = temp;
+        return position;
+    }
+
     private int[] nextPosition(int[] position) {
         assert cols > 0 : "Violation of: graph is bigger than 0";
         if (position[0] + 1 >= cols) {
@@ -104,5 +110,65 @@ public class Graph {
         nodeMap.add(arrayToString(position), nodeId);
         intNodeMap.add(nodeId, arrayToString(position));
         nodeId++;
+    }
+
+    private void addEdge(String src, String dst, int cost) {
+        assert cost >= 0 : "Violation of : edge cost is non negative";
+        assert nodeMap.hasKey(src) : "Violation of : src is a node in the graph";
+        assert nodeMap.hasKey(dst) : "Violation of : dst is a node in the graph";
+
+        int srcIndex = nodeMap.value(src);
+        int dstIndex = nodeMap.value(dst);
+        matrix[srcIndex][dstIndex] = cost;
+    }
+
+    private void dijkstra() {
+        Comparator<Node> compareDistOfNodes = (v1, v2) -> Integer.compare(v1.dist, v2.dist);
+        MyQueue<Node> pq = new MyQueue<Node>(compareDistOfNodes);
+        shortestPathMap.clear();
+        int numNodes = matrix.length;
+        for (int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
+            Node n = new Node(nodeIndex, intNodeMap.value(nodeIndex));
+            shortestPathMap.add(n.position, n);
+            if (n.position.equals(this.start))
+                n.dist = 0;
+            pq.enqueue(n);
+        }
+
+        while (pq.size() > 0) {
+            Node u = pq.dequeue();
+
+            for (int n = 0; n < numNodes; n++) {
+                if (matrix[u.indexInMatrix][n] < INFINITY && u.dist < INFINITY) {
+                    int alt = u.dist + matrix[u.indexInMatrix][n];
+                    Node nodeN = shortestPathMap.value(u.position);
+                    if (alt < nodeN.dist) {
+                        nodeN.dist = alt;
+                        nodeN.prev = u.position;
+                    }
+                }
+            }
+        }
+    }
+
+    private int shortestPathCost() {
+        dijkstra();
+        int dstIdx = nodeMap.value(this.end);
+        Node sspNode = shortestPathMap.value(this.end);
+        return sspNode.dist;
+    }
+
+    private String shortestPath () {
+        int dstIdx = nodeMap.value(this.end);
+        Node sspNode = shortestPathMap.value(this.end);
+        String result = "";
+        if (sspNode.dist < INFINITY) {
+            while (sspNode.prev != "") {
+                result += sspNode.position + " ";
+                sspNode = shortestPathMap.value(sspNode.prev);
+            }
+            result += sspNode.position;
+        }
+        return result;
     }
 }
