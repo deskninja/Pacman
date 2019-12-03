@@ -110,7 +110,7 @@ public class Graph {
         this.maze = new char[rows][cols];
         this.matrix = new int[numVertices][numVertices];
         for (int i = 0; i < numVertices; i++) {
-            for (int j = 0; j < numVertices; i++) {
+            for (int j = 0; j < numVertices; j++) {
                 matrix[i][j] = INFINITY;
             }
         }
