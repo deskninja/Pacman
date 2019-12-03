@@ -230,6 +230,9 @@ public class Graph {
                 sspNode = sspNode.prev;
             }
         }
+        else
+            size = -1;
+        
         char[][] newMaze = new char[rows + 1][cols + 1];
         newMaze[0] = (this.rows + " " + this.cols).toCharArray();
         int[] position = newPosition();
