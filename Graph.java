@@ -128,18 +128,22 @@ public class Graph {
         nodeId++;
     }
 
-    private void addEdges(int[] postion) {
+    private void addEdges(int[] position) {
         int[] temp = newPosition();
-        temp[0] = postion[0];
-        temp[1] = postion[1] - 1;
-        checkPosition(postion, temp);
-        temp[1] += 2;
-        checkPosition(postion, temp);
-        temp[0] += 1;
-        temp[1] -= 1;
-        checkPosition(postion, temp);
-        temp[0] += 2;
-        checkPosition(postion, temp);
+        //check left
+        temp[0] = position[0];
+        temp[1] = position[1] - 1;
+        checkPosition(position, temp);
+        //check right
+        temp[1] = position[1] + 1;
+        checkPosition(position, temp);
+        //check up
+        temp[0] = position[0] - 1;
+        temp[1] = position[1];
+        checkPosition(position, temp);
+        //check down
+        temp[0] = position[0] + 1;
+        checkPosition(position, temp);
     }
 
     private void checkPosition(int[] position, int[] temp) {
