@@ -23,7 +23,8 @@ public class Graph {
     }
 
     private static final int INFINITY = Integer.MAX_VALUE;
-    private int[][] matrix;
+    private char[][] maze; //stores the maze
+    private int[][] matrix; //stores connections to other Nodes
     private Map<String, Integer> nodeMap; //position, nodeId counting up
     private Map<Integer, String> intNodeMap; //nodeId counting up, position
     private Map<String, Node> shortestPathMap; //indexInMatrix, Node where prev leads back to start
@@ -46,16 +47,19 @@ public class Graph {
             for (char node : nodes) {
                 if (node == ' ' || node == 'X') {
                     addNode(position);
+                    maze[position[0]][position[1]] = node;
                     position = nextPosition(position);
                 }
                 if (node == 'S') {
                     this.start = arrayToString(position);
                     addNode(position);
+                    maze[position[0]][position[1]] = node;
                     position = nextPosition(position);
                 }
                 if (node == 'G') {
                     this.end = arrayToString(position);
                     addNode(position);
+                    maze[position[0]][position[1]] = node;
                     position = nextPosition(position);
                 }
             }
@@ -95,6 +99,7 @@ public class Graph {
 
     private void resize(){
         int numVertices = rows * cols;
+        this.maze = new char[rows][cols];
         this.matrix = new int[numVertices][numVertices];
         for (int i = 0; i < numVertices; i++) {
             for (int j = 0; j < numVertices; i++) {
@@ -112,14 +117,38 @@ public class Graph {
         nodeId++;
     }
 
-    private void addEdge(String src, String dst, int cost) {
-        assert cost >= 0 : "Violation of : edge cost is non negative";
+    private void addEdges(int[] postion) {
+        int[] temp = newPosition();
+        temp[0] = postion[0];
+        temp[1] = postion[1] - 1;
+        checkPosition(postion, temp);
+        temp[1] += 2;
+        checkPosition(postion, temp);
+        temp[1] += 1;
+        temp[0] -= 1;
+        checkPosition(postion, temp);
+        temp[0] += 2;
+        checkPosition(postion, temp);
+    }
+
+    private void checkPosition(int[] position, int[] temp) {
+        if (validPosition(temp) && maze[temp[0]][temp[1]] != 'X') {
+            addEdge(arrayToString(position), arrayToString(temp));
+        }
+    }
+
+    private boolean validPosition(int[] position) {
+        if (position[0] >= this.rows || position[0] < 0 || position[1] >= this.cols || position[1] < 0)
+            return false;
+        return true;
+    }
+
+    private void addEdge(String src, String dst) {
         assert nodeMap.hasKey(src) : "Violation of : src is a node in the graph";
         assert nodeMap.hasKey(dst) : "Violation of : dst is a node in the graph";
-
         int srcIndex = nodeMap.value(src);
         int dstIndex = nodeMap.value(dst);
-        matrix[srcIndex][dstIndex] = cost;
+        matrix[srcIndex][dstIndex] = 1;
     }
 
     private void dijkstra() {
