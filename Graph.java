@@ -92,12 +92,12 @@ public class Graph {
 
     private int[] nextPosition(int[] position) {
         assert cols > 0 : "Violation of: graph is bigger than 0";
-        if (position[0] + 1 >= cols) {
-            position[1]++;
-            position[0] = 0;
+        if (position[1] + 1 >= cols) {
+            position[0]++;
+            position[1] = 0;
         }
         else
-            position[0]++;
+            position[1]++;
         return position;
     }
 
