@@ -143,13 +143,13 @@ public class Graph {
     }
 
     private void checkPosition(int[] position, int[] temp) {
-        if (validPosition(temp) && maze[temp[0]][temp[1]] != 'X') {
+        if (validPosition(temp) && maze[temp[1]][temp[0]] != 'X') {
             addEdge(arrayToString(position), arrayToString(temp));
         }
     }
 
     private boolean validPosition(int[] position) {
-        if (position[0] >= this.rows || position[0] < 0 || position[1] >= this.cols || position[1] < 0)
+        if (position[0] >= this.cols || position[0] < 0 || position[1] >= this.rows || position[1] < 0)
             return false;
         return true;
     }
