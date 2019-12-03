@@ -135,8 +135,8 @@ public class Graph {
         checkPosition(postion, temp);
         temp[1] += 2;
         checkPosition(postion, temp);
-        temp[1] += 1;
-        temp[0] -= 1;
+        temp[0] += 1;
+        temp[1] -= 1;
         checkPosition(postion, temp);
         temp[0] += 2;
         checkPosition(postion, temp);
@@ -149,9 +149,9 @@ public class Graph {
     }
 
     private boolean validPosition(int[] position) {
-        if (position[0] >= this.cols || position[0] < 0 || position[1] >= this.rows || position[1] < 0)
-            return false;
-        return true;
+        if (position[0] <= this.maze.length - 1 && position[0] > 0 && position[1] <= this.maze[0].length - 1 && position[1] > 0)
+            return true;
+        return false;
     }
 
     private void addEdge(String src, String dst) {
