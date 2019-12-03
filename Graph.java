@@ -39,8 +39,8 @@ public class Graph {
         SimpleReader in = new SimpleReader1L(file);
         int[] position = newPosition();
         String line = in.nextLine();
-        this.cols = Integer.parseInt(line.split(" ")[0]);
-        this.rows = Integer.parseInt(line.split(" ")[1]);
+        this.rows = Integer.parseInt(line.split(" ")[0]);
+        this.cols = Integer.parseInt(line.split(" ")[1]);
         resize();
         while (!in.atEOS()) {
             line = in.nextLine();
@@ -48,26 +48,28 @@ public class Graph {
             for (char node : nodes) {
                 if (node == ' ' || node == 'X') {
                     addNode(position);
-                    maze[position[0]][position[1]] = node;
+                    maze[position[1]][position[0]] = node;
                     nextPosition(position);
                 }
                 if (node == 'S') {
                     this.start = arrayToString(position);
                     addNode(position);
-                    maze[position[0]][position[1]] = node;
+                    maze[position[1]][position[0]] = node;
                     nextPosition(position);
                 }
                 if (node == 'G') {
                     this.end = arrayToString(position);
                     addNode(position);
-                    maze[position[0]][position[1]] = node;
+                    maze[position[1]][position[0]] = node;
                     nextPosition(position);
                 }
             }
         }
         position = newPosition();
         for (int i = 0; i < (this.rows - 1) * (this.cols - 1); i++) {
-            if (maze[position[0]][position[1]] != 'X')
+            if (maze[position[1]][position[0]] == 'G' ||
+                    maze[position[1]][position[0]] == 'S' ||
+                    maze[position[1]][position[0]] == ' ')
                 addEdges(position);
             nextPosition(position);
         }
@@ -92,12 +94,12 @@ public class Graph {
 
     private int[] nextPosition(int[] position) {
         assert cols > 0 : "Violation of: graph is bigger than 0";
-        if (position[1] + 1 >= cols) {
-            position[0]++;
-            position[1] = 0;
+        if (position[0] + 1 >= cols) {
+            position[1]++;
+            position[0] = 0;
         }
         else
-            position[1]++;
+            position[0]++;
         return position;
     }
 
@@ -116,6 +118,7 @@ public class Graph {
         }
         nodeMap = new MapOnHashTable<>();
         intNodeMap = new MapOnHashTable<>();
+        shortestPathMap = new MapOnHashTable<>();
         nodeId = 0;
     }
 
@@ -162,7 +165,6 @@ public class Graph {
     private void dijkstra() {
         Comparator<Node> compareDistOfNodes = (v1, v2) -> Integer.compare(v1.dist, v2.dist);
         MyQueue<Node> pq = new MyQueue<Node>(compareDistOfNodes);
-        shortestPathMap.clear();
         int numNodes = matrix.length;
         for (int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
             Node n = new Node(nodeIndex, intNodeMap.value(nodeIndex));
@@ -199,7 +201,7 @@ public class Graph {
         if (sspNode.dist < INFINITY) {
             while (sspNode.prev != "") {
                 int[] position = newPosition(sspNode.position);
-                maze[position[0]][position[1]] = '.';
+                maze[position[1]][position[0]] = '.';
                 sspNode = shortestPathMap.value(sspNode.prev);
             }
         }
