@@ -33,6 +33,7 @@ public class Graph {
     String start; //position of start Node
     String end; //position of end Node
     int nodeId;
+    int size;
 
     public Graph(String file) {
         SimpleReader in = new SimpleReader1L(file);
@@ -48,22 +49,29 @@ public class Graph {
                 if (node == ' ' || node == 'X') {
                     addNode(position);
                     maze[position[0]][position[1]] = node;
-                    position = nextPosition(position);
+                    nextPosition(position);
                 }
                 if (node == 'S') {
                     this.start = arrayToString(position);
                     addNode(position);
                     maze[position[0]][position[1]] = node;
-                    position = nextPosition(position);
+                    nextPosition(position);
                 }
                 if (node == 'G') {
                     this.end = arrayToString(position);
                     addNode(position);
                     maze[position[0]][position[1]] = node;
-                    position = nextPosition(position);
+                    nextPosition(position);
                 }
             }
         }
+        position = newPosition();
+        for (int i = 0; i < (this.rows - 1) * (this.cols - 1); i++) {
+            if (maze[position[0]][position[1]] != 'X')
+                addEdges(position);
+            nextPosition(position);
+        }
+        size = shortestPathCost();
     }
 
     private int[] newPosition() {
@@ -98,7 +106,7 @@ public class Graph {
     }
 
     private void resize(){
-        int numVertices = rows * cols;
+        int numVertices = (rows - 1) * (cols - 1);
         this.maze = new char[rows][cols];
         this.matrix = new int[numVertices][numVertices];
         for (int i = 0; i < numVertices; i++) {
@@ -182,22 +190,23 @@ public class Graph {
 
     private int shortestPathCost() {
         dijkstra();
-        int dstIdx = nodeMap.value(this.end);
         Node sspNode = shortestPathMap.value(this.end);
-        return sspNode.dist;
+        return sspNode.dist + 1;
     }
 
-    private String shortestPath () {
-        int dstIdx = nodeMap.value(this.end);
+    public char[][] shortestPath () {
         Node sspNode = shortestPathMap.value(this.end);
-        String result = "";
         if (sspNode.dist < INFINITY) {
             while (sspNode.prev != "") {
-                result += sspNode.position + " ";
+                int[] position = newPosition(sspNode.position);
+                maze[position[0]][position[1]] = '.';
                 sspNode = shortestPathMap.value(sspNode.prev);
             }
-            result += sspNode.position;
         }
-        return result;
+        return maze;
+    }
+
+    public int getSize(){
+        return this.size;
     }
 }

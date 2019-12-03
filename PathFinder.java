@@ -32,7 +32,16 @@ public class PathFinder {
      */
     public static int solveMaze(String inputFileName, String outputFileName) {
         Graph g = new Graph(inputFileName);
-        //TODO: output file = g.shortestPath();
-        return g.size();
+        SimpleWriter output = new SimpleWriter1L(outputFileName);
+        char[][] maze = g.shortestPath();
+        for (char[] line:
+        maze){
+            for (char c :
+                    line) {
+                output.print(c);
+            }
+            output.print('\n');
+        }
+        return g.getSize();
     }
 }
