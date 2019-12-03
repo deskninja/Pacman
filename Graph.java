@@ -224,20 +224,23 @@ public class Graph {
     }
 
     public char[][] shortestPath () {
+        int[] position = newPosition();
         Node sspNode = shortestPathMap.get(positionToInt(stringToPosition(this.end)));
         if (sspNode.dist < INFINITY) {
             while (sspNode.prev != null) {
-                int[] position = newPosition(sspNode.position);
+                position = newPosition(sspNode.position);
                 maze[position[0]][position[1]] = '.';
                 sspNode = sspNode.prev;
             }
+            position = stringToPosition(this.end);
+            maze[position[0]][position[1]] = 'G';
         }
         else
             size = -1;
 
         char[][] newMaze = new char[rows + 1][cols + 1];
         newMaze[0] = (this.rows + " " + this.cols).toCharArray();
-        int[] position = newPosition();
+        position = newPosition();
         position[0]++;
         for (char[] ca :
                 maze) {
