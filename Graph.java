@@ -48,28 +48,28 @@ public class Graph {
             for (char node : nodes) {
                 if (node == ' ' || node == 'X') {
                     addNode(position);
-                    maze[position[1]][position[0]] = node;
+                    maze[position[0]][position[1]] = node;
                     nextPosition(position);
                 }
                 if (node == 'S') {
                     this.start = arrayToString(position);
                     addNode(position);
-                    maze[position[1]][position[0]] = node;
+                    maze[position[0]][position[1]] = node;
                     nextPosition(position);
                 }
                 if (node == 'G') {
                     this.end = arrayToString(position);
                     addNode(position);
-                    maze[position[1]][position[0]] = node;
+                    maze[position[0]][position[1]] = node;
                     nextPosition(position);
                 }
             }
         }
         position = newPosition();
         for (int i = 0; i < (this.rows - 1) * (this.cols - 1); i++) {
-            if (maze[position[1]][position[0]] == 'G' ||
-                    maze[position[1]][position[0]] == 'S' ||
-                    maze[position[1]][position[0]] == ' ')
+            if (maze[position[0]][position[1]] == 'G' ||
+                    maze[position[0]][position[1]] == 'S' ||
+                    maze[position[0]][position[1]] == ' ')
                 addEdges(position);
             nextPosition(position);
         }
@@ -94,12 +94,12 @@ public class Graph {
 
     private int[] nextPosition(int[] position) {
         assert cols > 0 : "Violation of: graph is bigger than 0";
-        if (position[0] + 1 >= cols) {
-            position[1]++;
-            position[0] = 0;
+        if (position[1] + 1 >= cols) {
+            position[0]++;
+            position[1] = 0;
         }
         else
-            position[0]++;
+            position[1]++;
         return position;
     }
 
@@ -108,7 +108,7 @@ public class Graph {
     }
 
     private void resize(){
-        int numVertices = (rows - 1) * (cols - 1);
+        int numVertices = (rows) * (cols);
         this.maze = new char[rows][cols];
         this.matrix = new int[numVertices][numVertices];
         for (int i = 0; i < numVertices; i++) {
@@ -147,13 +147,13 @@ public class Graph {
     }
 
     private void checkPosition(int[] position, int[] temp) {
-        if (validPosition(temp) && maze[temp[1]][temp[0]] != 'X') {
+        if (validPosition(temp) && maze[temp[0]][temp[1]] != 'X') {
             addEdge(arrayToString(position), arrayToString(temp));
         }
     }
 
     private boolean validPosition(int[] position) {
-        if (position[0] <= this.maze.length - 1 && position[0] > 0 && position[1] <= this.maze[0].length - 1 && position[1] > 0)
+        if (position[0] <= this.maze.length - 1 && position[0] >= 0 && position[1] <= this.maze[0].length - 1 && position[1] >= 0)
             return true;
         return false;
     }
@@ -161,27 +161,36 @@ public class Graph {
     private void addEdge(String src, String dst) {
         assert nodeMap.hasKey(src) : "Violation of : src is a node in the graph";
         assert nodeMap.hasKey(dst) : "Violation of : dst is a node in the graph";
-        int srcIndex = nodeMap.value(src);
-        int dstIndex = nodeMap.value(dst);
-        matrix[srcIndex][dstIndex] = 1;
+        int sIndex = nodeMap.value(src);
+        int dIndex = nodeMap.value(dst);
+
+        matrix[sIndex][dIndex] = 1;
+    }
+
+    private int positionToInt(int[] position) {
+        int num = position[0] * cols + position[1];
+        return num;
     }
 
     private void dijkstra() {
         Comparator<Node> compareDistOfNodes = (v1, v2) -> Integer.compare(v1.dist, v2.dist);
-        MyQueue<Node> pq = new MyQueue<Node>(compareDistOfNodes);
-        int numNodes = matrix.length;
-        for (int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
-            Node n = new Node(nodeIndex, intNodeMap.value(nodeIndex));
+        MyQueue<Node> pq = new MyQueue<>(compareDistOfNodes);
+        int[] position = newPosition();
+        shortestPathMap.clear();
+
+        while (validPosition(position)) {
+            Node n = new Node(positionToInt(position), arrayToString(position));
             shortestPathMap.add(n.position, n);
             if (n.position.equals(this.start))
                 n.dist = 0;
             pq.enqueue(n);
+            nextPosition(position);
         }
 
         while (pq.size() > 0) {
             Node u = pq.dequeue();
 
-            for (int n = 0; n < numNodes; n++) {
+            for (int n = 0; n < matrix.length; n++) {
                 if (matrix[u.indexInMatrix][n] < INFINITY && u.dist < INFINITY) {
                     int alt = u.dist + matrix[u.indexInMatrix][n];
                     Node nodeN = shortestPathMap.value(u.position);
@@ -197,7 +206,7 @@ public class Graph {
     private int shortestPathCost() {
         dijkstra();
         Node sspNode = shortestPathMap.value(this.end);
-        return sspNode.dist + 1;
+        return sspNode.dist;
     }
 
     public char[][] shortestPath () {
@@ -205,7 +214,7 @@ public class Graph {
         if (sspNode.dist < INFINITY) {
             while (sspNode.prev != "") {
                 int[] position = newPosition(sspNode.position);
-                maze[position[1]][position[0]] = '.';
+                maze[position[0]][position[1]] = '.';
                 sspNode = shortestPathMap.value(sspNode.prev);
             }
         }
