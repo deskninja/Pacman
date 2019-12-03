@@ -170,7 +170,7 @@ public class Graph {
     }
 
     private boolean validPosition(int[] position) {
-        if (position[0] <= this.maze.length - 1 && position[0] >= 0 && position[1] <= this.maze[0].length - 1 && position[1] >= 0)
+        if (position[0] < this.maze.length && position[0] >= 0 && position[1] < this.maze[0].length && position[1] >= 0)
             return true;
         return false;
     }
@@ -230,7 +230,19 @@ public class Graph {
                 sspNode = sspNode.prev;
             }
         }
-        return maze;
+        char[][] newMaze = new char[rows + 1][cols + 1];
+        newMaze[0] = (this.rows + " " + this.cols).toCharArray();
+        int[] position = newPosition();
+        position[0]++;
+        for (char[] ca :
+                maze) {
+            for (char c:
+                 ca){
+                newMaze[position[0]][position[1]] = c;
+                nextPosition(position);
+            }
+        }
+        return newMaze;
     }
 
     public int getSize(){
