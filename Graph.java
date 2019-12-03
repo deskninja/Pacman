@@ -23,6 +23,8 @@ public class Graph {
         }
     }
 
+    //TODO tiny maze doesnt solve because of the matrix not having updated edges
+
     private static final int INFINITY = Integer.MAX_VALUE;
     private char[][] maze; //stores the maze
     private int[][] matrix; //stores connections to other Nodes
@@ -67,7 +69,7 @@ public class Graph {
             }
         }
         position = newPosition();
-        for (int i = 0; i < (this.rows - 1) * (this.cols - 1); i++) {
+        for (int i = 0; i < (this.rows) * (this.cols); i++) {
             if (maze[position[0]][position[1]] == 'G' ||
                     maze[position[0]][position[1]] == 'S' ||
                     maze[position[0]][position[1]] == ' ')
@@ -232,7 +234,7 @@ public class Graph {
         }
         else
             size = -1;
-        
+
         char[][] newMaze = new char[rows + 1][cols + 1];
         newMaze[0] = (this.rows + " " + this.cols).toCharArray();
         int[] position = newPosition();
