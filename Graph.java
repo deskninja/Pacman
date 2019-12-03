@@ -5,14 +5,15 @@ import components.map.MapOnHashTable;
 import components.simplereader.SimpleReader;
 import components.simplereader.SimpleReader1L;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public class Graph {
     private class Node{
-        String prev = "";
+        Node prev;
         int dist = INFINITY;
         int timesVisited;
-        boolean visited; //maybe unnecessary
+        boolean visited;
         int indexInMatrix;
         String position;
 
@@ -27,7 +28,7 @@ public class Graph {
     private int[][] matrix; //stores connections to other Nodes
     private Map<String, Integer> nodeMap; //position, nodeId counting up
     private Map<Integer, String> intNodeMap; //nodeId counting up, position
-    private Map<String, Node> shortestPathMap; //indexInMatrix, Node where prev leads back to start
+    private ArrayList<Node> shortestPathMap;
     int cols; //x value for size
     int rows; //y value for size
     String start; //position of start Node
@@ -76,6 +77,13 @@ public class Graph {
         size = shortestPathCost();
     }
 
+    private int[] stringToPosition(String s) {
+        int[] a = newPosition();
+        a[0] = Integer.parseInt(s.split(" ")[0]);
+        a[1] = Integer.parseInt(s.split(" ")[1]);
+        return a;
+    }
+
     private int[] newPosition() {
         int[] position = new int[2];
         position[0] = 0;
@@ -107,6 +115,13 @@ public class Graph {
         return position[0] + " " + position[1];
     }
 
+    private int[] numToPosition(int n) {
+        int[] a = newPosition();
+        a[0] = n / cols;
+        a[1] = n % cols;
+        return a;
+    }
+
     private void resize(){
         int numVertices = (rows) * (cols);
         this.maze = new char[rows][cols];
@@ -118,13 +133,15 @@ public class Graph {
         }
         nodeMap = new MapOnHashTable<>();
         intNodeMap = new MapOnHashTable<>();
-        shortestPathMap = new MapOnHashTable<>();
+        shortestPathMap = new ArrayList<>();
         nodeId = 0;
     }
 
     private void addNode(int[] position) {
         nodeMap.add(arrayToString(position), nodeId);
         intNodeMap.add(nodeId, arrayToString(position));
+        Node n = new Node(nodeId, arrayToString(position));
+        shortestPathMap.add(n);
         nodeId++;
     }
 
@@ -175,28 +192,24 @@ public class Graph {
     private void dijkstra() {
         Comparator<Node> compareDistOfNodes = (v1, v2) -> Integer.compare(v1.dist, v2.dist);
         MyQueue<Node> pq = new MyQueue<>(compareDistOfNodes);
-        int[] position = newPosition();
-        shortestPathMap.clear();
 
-        while (validPosition(position)) {
-            Node n = new Node(positionToInt(position), arrayToString(position));
-            shortestPathMap.add(n.position, n);
-            if (n.position.equals(this.start))
-                n.dist = 0;
+        Node start = shortestPathMap.get(positionToInt(stringToPosition(this.start)));
+        start.dist = 0;
+        for (Node n :
+                shortestPathMap) {
             pq.enqueue(n);
-            nextPosition(position);
         }
 
         while (pq.size() > 0) {
             Node u = pq.dequeue();
-
             for (int n = 0; n < matrix.length; n++) {
                 if (matrix[u.indexInMatrix][n] < INFINITY && u.dist < INFINITY) {
-                    int alt = u.dist + matrix[u.indexInMatrix][n];
-                    Node nodeN = shortestPathMap.value(u.position);
+                    int alt = u.dist + 1;
+                    Node nodeN = shortestPathMap.get(n);
                     if (alt < nodeN.dist) {
                         nodeN.dist = alt;
-                        nodeN.prev = u.position;
+                        nodeN.prev = u;
+                        pq.changeOrder(compareDistOfNodes);
                     }
                 }
             }
@@ -205,17 +218,16 @@ public class Graph {
 
     private int shortestPathCost() {
         dijkstra();
-        Node sspNode = shortestPathMap.value(this.end);
-        return sspNode.dist;
+        return shortestPathMap.get(positionToInt(stringToPosition(this.end))).dist;
     }
 
     public char[][] shortestPath () {
-        Node sspNode = shortestPathMap.value(this.end);
+        Node sspNode = shortestPathMap.get(positionToInt(stringToPosition(this.end)));
         if (sspNode.dist < INFINITY) {
-            while (sspNode.prev != "") {
+            while (sspNode.prev != null) {
                 int[] position = newPosition(sspNode.position);
                 maze[position[0]][position[1]] = '.';
-                sspNode = shortestPathMap.value(sspNode.prev);
+                sspNode = sspNode.prev;
             }
         }
         return maze;
