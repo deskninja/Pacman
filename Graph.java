@@ -203,7 +203,9 @@ public class Graph {
         }
 
         while (pq.size() > 0) {
+            pq.changeOrder(compareDistOfNodes);
             Node u = pq.dequeue();
+
             for (int n = 0; n < matrix.length; n++) {
                 if (matrix[u.indexInMatrix][n] < INFINITY && u.dist < INFINITY) {
                     int alt = u.dist + 1;
@@ -211,7 +213,6 @@ public class Graph {
                     if (alt < nodeN.dist) {
                         nodeN.dist = alt;
                         nodeN.prev = u;
-                        pq.changeOrder(compareDistOfNodes);
                     }
                 }
             }
