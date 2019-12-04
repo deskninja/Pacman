@@ -2,45 +2,50 @@ package assignment10;
 
 
 import components.simplereader.SimpleReader;
-import components.simplereader.SimpleReader1L;
 import components.simplewriter.SimpleWriter;
 import components.simplewriter.SimpleWriter1L;
 
+/**
+ * This class reads a maze from a file using a SimpleReader object
+ * and outputs the solved maze to a file
+ * This class uses a graph data structure to solve the problem.
+ *
+ * @author Jonathan Oliveros and Joshua Wells
+ */
 public class PathFinder {
-    SimpleReader kbd = new SimpleReader1L();
-    SimpleWriter console = new SimpleWriter1L();
+    SimpleReader kbd;
 
+    /**
+     * sole constructor
+     * @param kbd is the SimpleReader object to read the file
+     */
     public PathFinder(SimpleReader kbd) {
         this.kbd = kbd;
     }
 
     /**
-     * This method will read a maze from a file with the given input name,
-     * and output the solved maze to a file with the given output name.
-     * You must use the filenames exactly as is (do not change the directory or path).
-     * We will provide the full path to files we want to read/write in our tests.
-     * See required specifications below.
-     * This method must use a graph and graph pathfinding to solve the problem.
+     * This method reads a maze from a file with the given input name
+     * and outputs the solved maze to a file with the given output name.
+     * This method uses a graph data structure to solve the problem.
      *
      * @param inputFileName
      * @param outputFileName
-     * @return
+     * @return the length of the path from S to G in the given file
      */
     public static int solveMaze(String inputFileName, String outputFileName) {
         Graph g = new Graph(inputFileName);
         SimpleWriter output = new SimpleWriter1L(outputFileName);
-        char[][] maze = g.getMaze();
+        char[][] maze = g.getNewMaze();
         for (char[] line:
         maze){
-            for (char c :
-                    line) {
+            for (char c : line) {
                 output.print(c);
             }
             output.print('\n');
         }
-        //for analysis of the algorythm
-        System.out.println("maze size: " + g.mazeSize() + " with: " + g.notXNodes() + " number of open spaces and being a ratio of " +
-                ((double)g.notXNodes()) / ((double)g.mazeSize()) + " with " +  g.averageTimesVisited() + " Visits to each node");
+        //for analysis of the algorithm
+        System.out.println("maze size: " + g.mazeSize() + " with: " + g.visitableNodes() + " number of open spaces and being a ratio of " +
+                ((double)g.visitableNodes()) / ((double)g.mazeSize()) + " with " +  g.averageTimesVisited() + " Visits to each node");
         return g.getSize();
     }
 }

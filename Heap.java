@@ -1,4 +1,4 @@
-package assignment09;
+package assignment10;
 
 import java.util.*;
 
@@ -137,6 +137,26 @@ public class Heap<E> {
     return sorted;
   }
 
+  /**
+   * Converts the given complete binary tree into a heap.
+   *
+   * @param start index of the root in the underlying array representation
+   * @ensures the rep is a heap
+   * @requires the rep is a complete binary tree
+   * @modifies this
+   */
+  public void heapify(int start) {
+    int left = start * 2 + 1;
+    int right = start * 2 + 2;
+    if (rep.length > left) {
+      heapify(left);
+    }
+    if (rep.length > right) {
+      heapify(right);
+    }
+    siftDownAndCheck(start);
+  }
+
   @Override
   public String toString() {
     StringBuilder s = new StringBuilder();
@@ -226,26 +246,6 @@ public class Heap<E> {
     } else if (size() > right && order.compare(rep[start], rep[right]) > 0) {
       switchElements(start, right);
     }
-  }
-
-  /**
-   * Converts the given complete binary tree into a heap.
-   *
-   * @param start index of the root in the underlying array representation
-   * @ensures the rep is a heap
-   * @requires the rep is a complete binary tree
-   * @modifies this
-   */
-  private void heapify(int start) {
-    int left = start * 2 + 1;
-    int right = start * 2 + 2;
-    if (rep.length > left) {
-      heapify(left);
-    }
-    if (rep.length > right) {
-      heapify(right);
-    }
-    siftDownAndCheck(start);
   }
 
   /**

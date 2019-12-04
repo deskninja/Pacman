@@ -2,37 +2,37 @@ package assignment10;
 
 import java.util.Comparator;
 
-public class MyQueue<T> extends Heap<T>{
+/**
+ * creates a priority queue from a heap data structure
+ * @author Jonathan Oliveros and Joshua Wells
+ * @param <T>
+ */
+public class MyQueue<T> extends Heap<T> {
 
-    public MyQueue() {
-        super();
-    }
-
+    /**
+     * constructor with a comparator
+     * @param cmp
+     */
     public MyQueue(Comparator cmp){
         super(cmp);
     }
 
+    /**
+     * returns the highest priority item
+     * @return T from the queue
+     * @ensures this is a priority queue
+     */
     public T dequeue(){
-        return super.removeFirst();
+        //ensure the order is correct for any updated values
+        heapify(0);
+        return removeFirst();
     }
 
+    /**
+     * @param x object to add
+     * @ensures this is a priority queue
+     */
     public void enqueue(T x){
         super.add(x);
-    }
-
-    @Override
-    public void add(T x) {
-        return;
-    }
-
-    @Override
-    public T removeFirst() {
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        //TODO: edit this as needed
-        return super.toString();
     }
 }
