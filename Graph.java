@@ -2,11 +2,8 @@ package assignment10;
 
 import components.map.Map;
 import components.map.MapOnHashTable;
-import components.queue.PriorityQueue;
-import components.queue.Queue;
 import components.simplereader.SimpleReader;
 import components.simplereader.SimpleReader1L;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 

@@ -1,6 +1,5 @@
 package assignment10;
 
-
 import components.simplereader.SimpleReader;
 import components.simplewriter.SimpleWriter;
 import components.simplewriter.SimpleWriter1L;
