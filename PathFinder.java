@@ -29,7 +29,7 @@ public class PathFinder {
     public static int solveMaze(String inputFileName, String outputFileName) {
         Graph g = new Graph(inputFileName);
         SimpleWriter output = new SimpleWriter1L(outputFileName);
-        char[][] maze = g.shortestPath();
+        char[][] maze = g.getMaze();
         for (char[] line:
         maze){
             for (char c :
@@ -38,6 +38,9 @@ public class PathFinder {
             }
             output.print('\n');
         }
+        //for analysis of the algorythm
+        System.out.println("maze size: " + g.mazeSize() + " with: " + g.notXNodes() + " number of open spaces and being a ratio of " +
+                ((double)g.notXNodes()) / ((double)g.mazeSize()) + " with " +  g.averageTimesVisited() + " Visits to each node");
         return g.getSize();
     }
 }

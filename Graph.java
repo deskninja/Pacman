@@ -2,6 +2,8 @@ package assignment10;
 
 import components.map.Map;
 import components.map.MapOnHashTable;
+import components.queue.PriorityQueue;
+import components.queue.Queue;
 import components.simplereader.SimpleReader;
 import components.simplereader.SimpleReader1L;
 
@@ -13,7 +15,6 @@ public class Graph {
         Node prev;
         int dist = INFINITY;
         int timesVisited;
-        boolean visited;
         int indexInMatrix;
         String position;
 
@@ -23,10 +24,9 @@ public class Graph {
         }
     }
 
-    //TODO tiny maze doesnt solve because of the matrix not having updated edges
-
     private static final int INFINITY = Integer.MAX_VALUE;
     private char[][] maze; //stores the maze
+    private char[][] newMaze; //maze with the path
     private int[][] matrix; //stores connections to other Nodes
     private Map<String, Integer> nodeMap; //position, nodeId counting up
     private Map<Integer, String> intNodeMap; //nodeId counting up, position
@@ -76,7 +76,38 @@ public class Graph {
                 addEdges(position);
             nextPosition(position);
         }
-        size = shortestPathCost();
+        shortestPath();
+    }
+
+    public char[][] getMaze() {
+        return maze;
+    }
+
+    public int getSize(){
+        return this.size;
+    }
+
+    public int averageTimesVisited() {
+        int times = 0;
+        for (Node n :
+                shortestPathMap) {
+            times += n.timesVisited;
+        }
+        return times / shortestPathMap.size();
+    }
+
+    public int mazeSize() {
+        return rows * cols;
+    }
+
+    public int notXNodes() {
+        int notX = 0;
+        for (Node n :
+                shortestPathMap) {
+            if (n.dist < INFINITY)
+                notX++;
+        }
+        return notX;
     }
 
     private int[] stringToPosition(String s) {
@@ -115,13 +146,6 @@ public class Graph {
 
     private String arrayToString(int[] position) {
         return position[0] + " " + position[1];
-    }
-
-    private int[] numToPosition(int n) {
-        int[] a = newPosition();
-        a[0] = n / cols;
-        a[1] = n % cols;
-        return a;
     }
 
     private void resize(){
@@ -210,6 +234,7 @@ public class Graph {
                 if (matrix[u.indexInMatrix][n] < INFINITY && u.dist < INFINITY) {
                     int alt = u.dist + 1;
                     Node nodeN = shortestPathMap.get(n);
+                    nodeN.timesVisited++;
                     if (alt < nodeN.dist) {
                         nodeN.dist = alt;
                         nodeN.prev = u;
@@ -219,16 +244,13 @@ public class Graph {
         }
     }
 
-    private int shortestPathCost() {
+    private void shortestPath () {
         dijkstra();
-        return shortestPathMap.get(positionToInt(stringToPosition(this.end))).dist;
-    }
-
-    public char[][] shortestPath () {
-        int[] position = newPosition();
+        int[] position;
         Node sspNode = shortestPathMap.get(positionToInt(stringToPosition(this.end)));
         if (sspNode.dist < INFINITY) {
             while (sspNode.prev != null) {
+                this.size++;
                 position = newPosition(sspNode.position);
                 maze[position[0]][position[1]] = '.';
                 sspNode = sspNode.prev;
@@ -251,10 +273,6 @@ public class Graph {
                 nextPosition(position);
             }
         }
-        return newMaze;
-    }
-
-    public int getSize(){
-        return this.size;
+        this.newMaze = newMaze;
     }
 }
