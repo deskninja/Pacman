@@ -11,7 +11,7 @@ import java.util.Comparator;
  * This class solves a maze from a text file.
  * Format must be:
  * top line is number of rows space number of columns
- * lines below are the maze
+ * lines below that are the maze
  *  edges are X
  *  S is the start
  *  G is the end
@@ -420,7 +420,7 @@ public class Graph {
      * newMaze includes the size of the maze in the first line where maze is just the updated maze
      * from the text file with the path
      */
-    private void shortestPath () {
+    private void shortestPath() {
         dijkstra();
         int[] position;
         Node sspNode = shortestPathMap.get(positionToInt(stringToPosition(this.end)));
