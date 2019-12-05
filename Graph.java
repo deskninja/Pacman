@@ -158,6 +158,8 @@ public class Graph {
                 }
             }
         }
+        in.close();
+        
         position = newPosition();
         for (int i = 0; i < (this.rows) * (this.cols); i++) {
             if (maze[position[0]][position[1]] == 'G' ||
@@ -441,10 +443,8 @@ public class Graph {
         newMaze[0] = (this.rows + " " + this.cols).toCharArray();
         position = newPosition();
         position[0]++;
-        for (char[] ca :
-                maze) {
-            for (char c:
-                 ca){
+        for (char[] ca : maze) {
+            for (char c: ca){
                 newMaze[position[0]][position[1]] = c;
                 nextPosition(position);
             }
