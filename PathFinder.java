@@ -6,8 +6,7 @@ import components.simplewriter.SimpleWriter1L;
 
 /**
  * This class reads a maze from a file using a SimpleReader object and outputs
- * the solved maze to a file This class uses a graph data structure to solve the
- * problem.
+ * the solved maze to a file. This class uses a graph data structure.
  *
  * @author Jonathan Oliveros and Joshua Wells
  */
@@ -26,7 +25,7 @@ public class PathFinder {
 	/**
 	 * This method reads a maze from a file with the given input name and outputs
 	 * the solved maze to a file with the given output name. This method uses a
-	 * graph data structure to solve the problem.
+	 * graph.
 	 *
 	 * @param inputFileName
 	 * @param outputFileName
@@ -43,10 +42,11 @@ public class PathFinder {
 			output.print('\n');
 		}
 		// for analysis of the algorithm
-		System.out.println("maze size: " + g.mazeSize() + " with: " + g.visitableNodes()
-				+ " number of open spaces and being a ratio of "
-				+ ((double) g.visitableNodes()) / ((double) g.mazeSize()) + " with " + g.averageTimesVisited()
-				+ " Visits to each node");
+		// intentionally commented out to reduce clutter for grading
+//		System.out.println("maze size: " + g.mazeSize() + " with: " + g.visitableNodes()
+//				+ " number of open spaces and being a ratio of "
+//				+ ((double) g.visitableNodes()) / ((double) g.mazeSize()) + " with " + g.averageTimesVisited()
+//				+ " Visits to each node");
 		output.close();
 		return g.getSize();
 	}

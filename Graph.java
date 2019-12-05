@@ -9,8 +9,13 @@ import java.util.Comparator;
 
 /**
  * This class solves a maze from a text file. Format must be: top line is number
- * of rows space number of columns lines below are the maze edges are X S is the
- * start G is the end space char is an open space X char is a wall
+ * of rows, space number of columns
+ * lines below are the maze
+ * edges are X
+ * S is the start
+ * G is the end
+ * space char " " is an open space
+ * X char is a wall
  *
  * @author Jonathan Oliveros and Joshua Wells
  */
@@ -109,7 +114,7 @@ public class Graph {
 	 */
 	int nodeId;
 	/**
-	 * dist instance variable of the end Node after the path has been found -1 if
+	 * dist instance variable of the end Node after the path has been found, -1 if
 	 * there was no path found
 	 */
 	int size;
@@ -184,8 +189,9 @@ public class Graph {
 	}
 
 	/**
-	 * for efficiency analysis returns the time each Node path was compared to the
-	 * current path for each Node with a path back to the start
+	 * used for data retrieval in analysis. returns the time each 
+	 * Node path was compared to the current path for each 
+	 * Node with a path back to the start
 	 * 
 	 * @return times / the number of nodes visitable from start
 	 */
@@ -283,7 +289,7 @@ public class Graph {
 	}
 
 	/**
-	 * instantiates instance variable and sets all connections in matrix to
+	 * instantiating variables and sets all connections in matrix to
 	 * {@code INFINITY}
 	 */
 	private void resize() {
@@ -316,7 +322,7 @@ public class Graph {
 
 	/**
 	 * checks all possible connections (up, down, left, right) to other nodes from
-	 * position and adds them if a connection is found
+	 * current position and adds them if a connection is found
 	 * 
 	 * @param position int array position of the node in the maze
 	 */
@@ -390,7 +396,7 @@ public class Graph {
 
 	/**
 	 * updates the shortestPathMap such that all Node.prev calls eventually lead to
-	 * start in the shortest path possible iff that Node can lead back to start
+	 * start in the shortest path possible, iff that Node can lead back to start
 	 */
 	private void dijkstra() {
 		Comparator<Node> compareDistOfNodes = (v1, v2) -> Integer.compare(v1.dist, v2.dist);
@@ -421,8 +427,8 @@ public class Graph {
 
 	/**
 	 * computes the shortest path from start to end and updates maze and newMaze to
-	 * include the path represented by "." newMaze includes the size of the maze in
-	 * the first line where maze is just the updated maze from the text file with
+	 * include the path represented by ".". newMaze includes the size of the maze in
+	 * the first line, whereas maze is just the updated maze from the text file with
 	 * the path
 	 */
 	private void shortestPath() {
